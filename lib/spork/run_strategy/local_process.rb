@@ -1,5 +1,3 @@
-require File.dirname(__FILE__) + '/../test_framework/rspec'
-
 class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
 
   def run(argv, stderr, stdout)
@@ -46,9 +44,4 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
     end
   end
 
-end
-
-unless Spork.using_spork?
-  test_framework = Spork::Runner.new([], STDERR, STDOUT).find_test_framework
-  Spork::RunStrategy::LocalProcess.new(test_framework).run(ARGV, STDERR, STDOUT)
 end
