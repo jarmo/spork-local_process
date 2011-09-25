@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'spork'
 require File.dirname(__FILE__) + '/../test_framework/rspec'
 require File.dirname(__FILE__) + '/../ext/tab_completion'
 
@@ -7,7 +9,10 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
     $stdout, $stderr = stdout, stderr
     Spork::Ext::TabCompletion.init
     filter = argv.join(" ")
-    Readline::HISTORY.push filter
+    
+    # in some libedit versions first #push into history won't add the item to
+    # the history
+    2.times {Readline::HISTORY.push filter}
 
     while true
       test_framework.preload
