@@ -5,7 +5,7 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
 
   def run(argv, stderr, stdout)
     $stdout, $stderr = stdout, stderr
-    Spork::TabCompletion.init
+    Spork::Ext::TabCompletion.init
     filter = argv.join(" ")
     Readline::HISTORY.push filter
 
