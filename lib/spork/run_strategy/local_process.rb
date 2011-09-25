@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../test_framework/rspec'
-require File.dirname(__FILE__) + '/../tab_completion'
+require File.dirname(__FILE__) + '/../ext/tab_completion'
 
 class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
 
@@ -32,11 +32,12 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
     end
   end
 
-  def self.unload *const_strs
-    const_strs.each do |const_str|
-      consts, const_to_remove = const_str.scan(/(.*)::(.*)$/).flatten
-      if consts && Object.const_defined?(consts)
-        Object.const_get(consts).send(:remove_const, const_to_remove)
+  def self.unload *consts
+    consts.each do |const|
+      const_str = const.to_s
+      super_consts, const_to_remove = const_str.scan(/(.*)::(.*)$/).flatten
+      if super_consts && Object.const_defined?(super_consts)
+        Object.const_get(super_consts).send(:remove_const, const_to_remove)
       elsif Object.const_defined?(const_str)
         Object.send(:remove_const, const_str)
       end
