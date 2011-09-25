@@ -1,0 +1,7 @@
+== 0.0.2 - 2011/09/25
+ * allow to specify example name like with -e from command line by entering something like this:
+   - spec/ "part of example name"
+ * reset RSpec differently to not lose global configuration
+ 
+== 0.0.1 - 2011/09/25
+ * first version
