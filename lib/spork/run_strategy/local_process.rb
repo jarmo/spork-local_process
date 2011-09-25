@@ -8,11 +8,13 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
   def run(argv, stderr, stdout)
     $stdout, $stderr = stdout, stderr
     Spork::Ext::TabCompletion.init
-    filter = argv.join(" ")
-    
+
+    filter = argv
+    additional_options = nil
+
     # in some libedit versions first #push into history won't add the item to
     # the history
-    2.times {Readline::HISTORY.push filter}
+    2.times {Readline::HISTORY.push argv.join(" ")}
 
     while true
       test_framework.preload
@@ -20,19 +22,21 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
       begin
         run_proc :each
         test_framework.reset
-        test_framework.run_tests(filter.split(" "), stderr, stdout)
+        test_framework.additional_options = additional_options if additional_options
+        test_framework.run_tests([filter].flatten, stderr, stdout)
         run_proc :after_each
       rescue Exception => e
         puts "#{e.class}: #{e.message}"
         puts e.backtrace
       end
 
-      new_filter = Readline.readline(">> '#{filter}' or: ").strip
+      new_filter = Readline.readline(">> '#{test_framework.options_str(filter, additional_options)}' or: ").strip
       exit 0 if new_filter.downcase == "exit"
 
       unless new_filter.empty?
         Readline::HISTORY.push new_filter
-        filter = new_filter
+        filter, additional_options = new_filter.scan(/(.*[^"])(?:\s+"(.*)")/).flatten
+        filter = new_filter unless filter
       end
     end
   end
