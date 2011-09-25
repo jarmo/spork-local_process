@@ -36,8 +36,8 @@ Make your tests run fast again!
 
 6. Type 'exit' to exit
 
-That's all you have to do. No additional changes needed usually. Just run your tests without starting up the Spork process
-itself.
+That's all you have to do. No additional changes needed usually. If Spork itself is started, then it is used normally instead
+making Spork Local Process totally backwards compatible.
 
 == RELOADING FILES
 
