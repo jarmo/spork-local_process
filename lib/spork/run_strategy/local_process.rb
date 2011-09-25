@@ -30,7 +30,7 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
         puts e.backtrace
       end
 
-      new_filter = Readline.readline(">> '#{test_framework.options_str(filter, additional_options)}' or: ").strip
+      new_filter = Readline.readline("> '#{test_framework.options_str(filter, additional_options)}' or: ").strip
       exit 0 if new_filter.downcase == "exit"
 
       unless new_filter.empty?
