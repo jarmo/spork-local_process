@@ -1,0 +1,49 @@
+= Spork Local Process
+
+* Web: http://www.github.com/jarmo/spork-local_process
+* Author: Jarmo Pertman (mailto:jarmo.p[at]gmail.com)
+
+== DESCRIPTION
+
+Spork Local Process is a run strategy for the Spork (https://github.com/timcharper/spork) library. It will
+re-run all your tests in the same process again and again without using any fork-ing under *nix or DRb processes under Windows.
+This library is useful when you are having problems with the Spork server solutions (especially on Windows).
+
+Make your tests run fast again!
+
+== USAGE
+
+In your spec_helper.rb:
+    require "spork"
+    require "spork/local_process"
+
+And in the `Spork.each_run` block load all files again.
+
+That's all you have to do. No additional changes needed usually. Just run your tests without starting up the Spork process
+itself.
+
+== INSTALL
+
+1. `gem install spork-local_process`
+2. add `require "spork/local_process"` line to your `spec_helper.rb` right after `require "spork"`
+3. run tests as you normally would without starting the Spork itself
+4. run same tests again by pressing `enter` or use tab-completion-powered command line to run something else
+
+== RELOADING FILES
+
+Add load statements into `Spork.each_run` block to load all files again before each test run:
+    Dir.glob(File.join(File.dirname(__FILE__), "../lib/**/*.rb")).each {|f| load f}
+    Dir.glob(File.join(File.dirname(__FILE__), "**/*.rb")).delete_if {|f| File.basename(f) =~ %r{(_)?spec(_helper)?.rb$}}.each do |f|
+      load f
+    end
+
+Use `require_all` (https://github.com/jarmo/require_all) gem's `#load_all` method to do it more easily.
+
+Sometimes only reloading the files is not enough since deleted methods/classes won't disappear from the memory and
+reassigning values to constants will show a warning. In these cases you can unload constants from the memory before loading files.
+For example, to unload everything in the namespace of `MyApp` and a specific constant do something like this:
+    Spork::RunStrategy::LocalProcess.unload :MyApp, "YourApp::SOME_CONSTANT"
+
+== Copyright
+
+Copyright (c) 2011 Jarmo Pertman. See LICENSE for details.
