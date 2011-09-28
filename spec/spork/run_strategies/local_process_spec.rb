@@ -16,9 +16,7 @@ describe Spork::RunStrategy::LocalProcess do
 
   it "runs specs in a loop" do
     test_framework = mock_test_framework 
-    test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
     test_framework.should_not_receive(:additional_options=)
-    test_framework.should_receive(:options_str).with(["some_specs"], nil).and_return("some_specs")
 
     Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return("\n")
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
@@ -26,10 +24,8 @@ describe Spork::RunStrategy::LocalProcess do
   
   it "allows to specify new filter" do
     test_framework = mock_test_framework "other_specs", 2
-    test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
     test_framework.should_not_receive(:additional_options=)
-    test_framework.should_receive(:options_str).with(["some_specs"], nil).and_return("some_specs")
     test_framework.should_receive(:options_str).with("other_specs", nil).and_return("other_specs")
 
     Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return("other_specs\n")
@@ -39,10 +35,8 @@ describe Spork::RunStrategy::LocalProcess do
 
   it "allows to specify additional options" do
     test_framework = mock_test_framework "other_specs", 2
-    test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
     test_framework.should_receive(:additional_options=).with(%q[some additional opts])
-    test_framework.should_receive(:options_str).with(["some_specs"], nil).and_return("some_specs")
     test_framework.should_receive(:options_str).with("other_specs", "some additional opts").and_return(%q[other_specs "some additional opts"])
 
     Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs "some additional opts"\n])
@@ -52,8 +46,6 @@ describe Spork::RunStrategy::LocalProcess do
 
   it "exits the process if 'exit' is specified as a filter" do
     test_framework = mock_test_framework
-    test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
-    test_framework.should_receive(:options_str).with(["some_specs"], nil).and_return("some_specs")
 
     Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return("exit\n")
     expect {
@@ -63,6 +55,9 @@ describe Spork::RunStrategy::LocalProcess do
 
   def mock_test_framework new_filter=nil, loop_count=1
     test_framework = double('TestFramework')
+    test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
+    test_framework.should_receive(:options_str).with(["some_specs"], nil).and_return("some_specs")
+
     test_framework.should_receive(:preload).exactly(loop_count).times
     test_framework.should_receive(:reset).exactly(loop_count).times
 
