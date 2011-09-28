@@ -5,7 +5,8 @@ class Spork::TestFramework::RSpec < Spork::TestFramework
     else
       ::RSpec.reset
       ::RSpec.configuration.formatters.clear if ::RSpec.configuration.formatters
-      ::RSpec::configuration.clear_inclusion_filter
+      ::RSpec.configuration.clear_inclusion_filter
+      ::RSpec.world.shared_example_groups.clear
     end
   end
   
