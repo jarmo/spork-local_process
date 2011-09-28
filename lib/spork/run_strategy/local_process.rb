@@ -16,7 +16,7 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
     # the history
     2.times {Readline::HISTORY.push argv.join(" ")}
 
-    while true
+    while !Spork.using_spork?
       test_framework.preload
 
       begin
