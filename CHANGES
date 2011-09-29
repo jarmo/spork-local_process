@@ -1,3 +1,6 @@
+== 0.0.4 - 2011/09/29
+ * clear shared example groups too for RSpec when reloading files
+
 == 0.0.3 - 2011/09/25
  * show filter properly on Ruby 1.9
  
