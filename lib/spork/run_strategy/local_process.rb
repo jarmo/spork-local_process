@@ -16,18 +16,19 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
     # the history
     2.times {Readline::HISTORY.push argv.join(" ")}
 
-    while !Spork.using_spork?
+    while running?
       test_framework.preload
 
       begin
         run_proc :each
-        test_framework.reset
         test_framework.additional_options = additional_options if additional_options
         test_framework.run_tests([filter].flatten, stderr, stdout)
         run_proc :after_each
       rescue Exception => e
         puts "#{e.class}: #{e.message}"
         puts e.backtrace
+      ensure
+        test_framework.reset
       end
 
       new_filter = Readline.readline("> '#{test_framework.options_str(filter, additional_options)}' or: ").strip
@@ -61,6 +62,11 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
       send "exec_#{type}_run"
       instance_variable_set "@#{type}_run_procs", run_procs
     end
+  end
+
+  # needed for testing
+  def running?
+    true
   end
 
 end

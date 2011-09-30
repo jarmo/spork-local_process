@@ -63,7 +63,7 @@ describe Spork::RunStrategy::LocalProcess do
 
     Spork.should_receive(:exec_each_run).exactly(loop_count).times
     Spork.should_receive(:exec_after_each_run).exactly(loop_count).times
-    Spork.stub(:using_spork?) {(loop_count -= 1) == -1}    
+    Spork::RunStrategy::LocalProcess.any_instance.stub(:running?) {(loop_count -= 1) != -1}    
 
     test_framework
   end
