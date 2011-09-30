@@ -16,7 +16,7 @@ class Spork::TestFramework::RSpec < Spork::TestFramework
   
   def options_str options, additional_options=nil
     str = options.is_a?(Array) ? options.join(" ") : options
-    str.gsub!("\\", "/")
+    str = str.gsub("\\", "/")
     str << " \"#{additional_options}\"" if additional_options
     str
   end

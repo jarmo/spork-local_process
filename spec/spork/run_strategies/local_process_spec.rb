@@ -44,6 +44,17 @@ describe Spork::RunStrategy::LocalProcess do
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
 
+  it "allows to rerun specs with the same additional options" do
+    test_framework = mock_test_framework "other_specs", 3
+    test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT).exactly(2).times
+    test_framework.should_receive(:additional_options=).with(%q[some additional opts]).exactly(2).times
+    test_framework.should_receive(:options_str).with("other_specs", "some additional opts").exactly(2).times.and_return(%q[other_specs "some additional opts"])
+
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs "some additional opts"\n])
+    Readline.should_receive(:readline).exactly(2).times.with(%Q[> 'other_specs "some additional opts"' or: ]).and_return("\n")
+    Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
+  end
+
   it "exits the process if 'exit' is specified as a filter" do
     test_framework = mock_test_framework
 
