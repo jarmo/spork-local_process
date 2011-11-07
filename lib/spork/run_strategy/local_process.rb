@@ -42,10 +42,10 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
 
         if new_filter == "*"
           filter = [current_filter_without_lineno]
-        elsif File.exist? filter_without_line_no new_filter
-          filter = [new_filter]
         elsif new_filter =~ /^:\d+$/
           filter = [current_filter_without_lineno + new_filter]
+        elsif File.exist? filter_without_line_no new_filter
+          filter = [new_filter]
         else
           filter = [current_filter_without_lineno]
           additional_options = [new_filter]

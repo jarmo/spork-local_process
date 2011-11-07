@@ -23,7 +23,7 @@ describe Spork::RunStrategy::LocalProcess do
   end
   
   it "allows to specify new filter" do
-    test_framework = mock_test_framework "other_specs", 2
+    test_framework = mock_test_framework 2
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
     test_framework.should_not_receive(:additional_options=)
 
@@ -33,8 +33,8 @@ describe Spork::RunStrategy::LocalProcess do
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
 
-  it "allows to specify additional options" do
-    test_framework = mock_test_framework "other_specs", 2
+  it "allows to specify additional options as a string" do
+    test_framework = mock_test_framework 2
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
     test_framework.should_receive(:additional_options=).with(%w[some additional opts])
 
@@ -44,14 +44,59 @@ describe Spork::RunStrategy::LocalProcess do
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
 
-  it "allows to rerun specs with the same additional options" do
-    test_framework = mock_test_framework "other_specs", 3
+  it "allows to rerun specs with the same additional options without entering new filter" do
+    test_framework = mock_test_framework 3
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT).exactly(2).times
     test_framework.should_receive(:additional_options=).with(%w[some additional opts]).exactly(2).times
 
     Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs some additional opts\n])
     File.should_receive(:exist?).with("other_specs").and_return(true)
     Readline.should_receive(:readline).exactly(2).times.with(%Q[> 'other_specs some additional opts' or: ]).and_return("\n")
+    Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
+  end
+
+  it "allows to specify '*' as a filter resetting additional options" do
+    test_framework = mock_test_framework 3
+    test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT).exactly(2).times
+    test_framework.should_receive(:additional_options=).with(%w[some additional opts])
+
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs some additional opts\n])
+    File.should_receive(:exist?).with("other_specs").and_return(true)
+    Readline.should_receive(:readline).with(%Q[> 'other_specs some additional opts' or: ]).and_return("*\n")
+    Readline.should_receive(:readline).with(%Q[> 'other_specs' or: ]).and_return("\n")
+    Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
+  end
+
+  it "allows to specify '*' as a filter resetting line number" do
+    test_framework = mock_test_framework 3
+    test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
+    test_framework.should_receive(:run_tests).with(["other_specs:42"], STDERR, STDOUT)
+    test_framework.should_not_receive(:additional_options=)
+
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs:42\n])
+    File.should_receive(:exist?).with("other_specs").and_return(true)
+    Readline.should_receive(:readline).with(%Q[> 'other_specs:42' or: ]).and_return("*\n")
+    Readline.should_receive(:readline).with(%Q[> 'other_specs' or: ]).and_return("\n")
+    Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
+  end
+
+  it "allows to specify ':\d+' as a filter for line number" do
+    test_framework = mock_test_framework 2
+    test_framework.should_receive(:run_tests).with(["some_specs:42"], STDERR, STDOUT)
+    test_framework.should_not_receive(:additional_options=)
+
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[:42\n])
+    Readline.should_receive(:readline).with(%Q[> 'some_specs:42' or: ]).and_return("\n")
+    Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
+  end
+
+  it "allows to specify ':\d+' as a filter for line number" do
+    test_framework = mock_test_framework 2
+    test_framework.should_receive(:run_tests).with(["some_specs:42"], STDERR, STDOUT)
+    test_framework.should_not_receive(:additional_options=)
+
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[:42\n])
+    Readline.should_receive(:readline).with(%Q[> 'some_specs:42' or: ]).and_return("\n")
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
 
@@ -64,7 +109,7 @@ describe Spork::RunStrategy::LocalProcess do
     }.to raise_exception(SystemExit)
   end
 
-  def mock_test_framework new_filter=nil, loop_count=1
+  def mock_test_framework loop_count=1
     test_framework = double('TestFramework')
     test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
 
