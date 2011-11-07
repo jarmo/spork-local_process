@@ -26,9 +26,9 @@ describe Spork::RunStrategy::LocalProcess do
     test_framework = mock_test_framework "other_specs", 2
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
     test_framework.should_not_receive(:additional_options=)
-    test_framework.should_receive(:options_str).with("other_specs", nil).and_return("other_specs")
 
     Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return("other_specs\n")
+    File.should_receive(:exist?).with("other_specs").and_return(true)
     Readline.should_receive(:readline).with("> 'other_specs' or: ").and_return("\n")
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
@@ -36,22 +36,22 @@ describe Spork::RunStrategy::LocalProcess do
   it "allows to specify additional options" do
     test_framework = mock_test_framework "other_specs", 2
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT)
-    test_framework.should_receive(:additional_options=).with(%q[some additional opts])
-    test_framework.should_receive(:options_str).with("other_specs", "some additional opts").and_return(%q[other_specs "some additional opts"])
+    test_framework.should_receive(:additional_options=).with(%w[some additional opts])
 
-    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs "some additional opts"\n])
-    Readline.should_receive(:readline).with(%Q[> 'other_specs "some additional opts"' or: ]).and_return("\n")
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs some additional opts\n])
+    File.should_receive(:exist?).with("other_specs").and_return(true)
+    Readline.should_receive(:readline).with(%Q[> 'other_specs some additional opts' or: ]).and_return("\n")
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
 
   it "allows to rerun specs with the same additional options" do
     test_framework = mock_test_framework "other_specs", 3
     test_framework.should_receive(:run_tests).with(["other_specs"], STDERR, STDOUT).exactly(2).times
-    test_framework.should_receive(:additional_options=).with(%q[some additional opts]).exactly(2).times
-    test_framework.should_receive(:options_str).with("other_specs", "some additional opts").exactly(2).times.and_return(%q[other_specs "some additional opts"])
+    test_framework.should_receive(:additional_options=).with(%w[some additional opts]).exactly(2).times
 
-    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs "some additional opts"\n])
-    Readline.should_receive(:readline).exactly(2).times.with(%Q[> 'other_specs "some additional opts"' or: ]).and_return("\n")
+    Readline.should_receive(:readline).with("> 'some_specs' or: ").and_return(%Q[other_specs some additional opts\n])
+    File.should_receive(:exist?).with("other_specs").and_return(true)
+    Readline.should_receive(:readline).exactly(2).times.with(%Q[> 'other_specs some additional opts' or: ]).and_return("\n")
     Spork::RunStrategy::LocalProcess.new(test_framework).run(["some_specs"], STDERR, STDOUT)
   end
 
@@ -67,7 +67,6 @@ describe Spork::RunStrategy::LocalProcess do
   def mock_test_framework new_filter=nil, loop_count=1
     test_framework = double('TestFramework')
     test_framework.should_receive(:run_tests).with(["some_specs"], STDERR, STDOUT)
-    test_framework.should_receive(:options_str).with(["some_specs"], nil).and_return("some_specs")
 
     test_framework.should_receive(:preload).exactly(loop_count).times
     test_framework.should_receive(:reset).exactly(loop_count).times

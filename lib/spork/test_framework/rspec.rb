@@ -11,13 +11,7 @@ class Spork::TestFramework::RSpec < Spork::TestFramework
   end
   
   def additional_options= options
-    ::RSpec::configuration.full_description = options
+    ::RSpec::configuration.full_description = options.join(" ")
   end
   
-  def options_str options, additional_options=nil
-    str = options.is_a?(Array) ? options.join(" ") : options
-    str = str.gsub("\\", "/")
-    str << " \"#{additional_options}\"" if additional_options
-    str
-  end
 end

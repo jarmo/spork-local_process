@@ -22,7 +22,7 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
       begin
         run_proc :each
         test_framework.additional_options = additional_options if additional_options
-        test_framework.run_tests([filter].flatten, stderr, stdout)
+        test_framework.run_tests(filter, stderr, stdout)
         run_proc :after_each
       rescue Exception => e
         puts "#{e.class}: #{e.message}"
@@ -31,13 +31,25 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
         test_framework.reset
       end
 
-      new_filter = Readline.readline("> '#{test_framework.options_str(filter, additional_options)}' or: ").strip
+      new_filter = Readline.readline("> '#{(filter + (additional_options || [])).join(" ")}' or: ").strip
       exit 0 if new_filter.downcase == "exit"
 
       unless new_filter.empty?
         Readline::HISTORY.push new_filter
-        filter, additional_options = new_filter.scan(/(.*[^"])(?:\s+"(.*)")/).flatten
-        filter = new_filter unless filter
+        new_filter, *additional_options = new_filter.split(/\s+/)
+        additional_options = nil if additional_options.empty?
+        current_filter_without_lineno = filter_without_line_no filter[0]
+
+        if new_filter == "*"
+          filter = [current_filter_without_lineno]
+        elsif File.exist? filter_without_line_no new_filter
+          filter = [new_filter]
+        elsif new_filter =~ /^:\d+$/
+          filter = [current_filter_without_lineno + new_filter]
+        else
+          filter = [current_filter_without_lineno]
+          additional_options = [new_filter]
+        end
       end
     end
   end
@@ -55,6 +67,10 @@ class Spork::RunStrategy::LocalProcess < Spork::RunStrategy
   end  
 
   private
+
+  def filter_without_line_no filter
+    filter.gsub(/:\d+$/, "")
+  end
 
   def run_proc type
     Spork.instance_eval do
