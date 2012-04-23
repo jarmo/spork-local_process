@@ -55,4 +55,4 @@ Everything nested in these constants (e.g. submodules/subclasses) will be unload
 
 == Copyright
 
-Copyright (c) 2011 Jarmo Pertman. See LICENSE for details.
+Copyright (c) Jarmo Pertman. See LICENSE for details.
