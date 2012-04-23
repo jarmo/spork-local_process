@@ -4,9 +4,7 @@ class Spork::TestFramework::RSpec < Spork::TestFramework
       raise NotImplementedError
     else
       ::RSpec.reset
-      ::RSpec.configuration.formatters.clear if ::RSpec.configuration.formatters
-      ::RSpec.configuration.clear_inclusion_filter
-      ::RSpec.world.shared_example_groups.clear
+      ::RSpec.configuration.inclusion_filter.clear
     end
   end
   

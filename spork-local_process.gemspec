@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "spork-local_process"
-  s.version     = "0.0.6"
+  s.version     = "0.0.7"
   s.authors     = ["Jarmo Pertman"]
   s.email       = ["jarmo.p@gmail.com"]
   s.homepage    = "https://github.com/jarmo/spork-local_process"
@@ -14,5 +14,5 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency "spork", "~>0.9.0.rc9"
+  s.add_dependency "spork", "~>0.9.0"
 end
