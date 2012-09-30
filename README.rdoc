@@ -2,7 +2,7 @@
 
 * Web: http://www.github.com/jarmo/spork-local_process
 * Author: Jarmo Pertman (mailto:jarmo.p[at]gmail.com)
-{<img src="http://travis-ci.org/jarmo/spork-local_process.png" />}[http://travis-ci.org/jarmo/spork-local_process]
+{<img src="https://secure.travis-ci.org/jarmo/spork-local_process.png" />}[http://travis-ci.org/jarmo/spork-local_process]
 
 == DESCRIPTION
 
